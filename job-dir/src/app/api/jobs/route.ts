@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { Job } from '../../../../types/jobs';
 
