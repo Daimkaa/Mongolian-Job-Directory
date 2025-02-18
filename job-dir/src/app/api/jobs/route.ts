@@ -4,10 +4,11 @@ import { Job } from '../../../../types/jobs';
 
 export async function GET() {
     try {
-        const response = await fetch('https://www.zangia.mn/job/list/b.4');
-        const html = await response.text();
+        // Fetch Zangia jobs
+        const zangiaResponse = await fetch('https://www.zangia.mn/job/list/b.4');
+        const html = await zangiaResponse.text();
         const $ = cheerio.load(html);
-        const jobs: Job[] = [];
+        const zangiaJobs: Job[] = [];
 
         $('.list > div').each((index, element) => {
             const $element = $(element);
@@ -18,7 +19,7 @@ export async function GET() {
             const logo = $element.find('.company img').attr('src');
             const salary = $element.find('.ad .fsal').text().trim();
 
-            jobs.push({
+            zangiaJobs.push({
                 title,
                 company,
                 salary,
@@ -28,7 +29,14 @@ export async function GET() {
             });
         });
 
-        return NextResponse.json(jobs);
+        // Fetch Worki jobs
+        const workiResponse = await fetch('http://localhost:3000/api/worki');
+        const workiJobs: Job[] = await workiResponse.json();
+
+        // Combine
+        const allJobs = [...zangiaJobs, ...workiJobs];
+
+        return NextResponse.json(allJobs);
     } catch (error) {
         console.error('Error fetching jobs:', error);
         return NextResponse.json([], { status: 500 });
